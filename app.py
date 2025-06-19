@@ -352,7 +352,8 @@ if st.session_state["authentication_status"]:
                             'so2': [input_values['so2']],
                             'o3': [input_values['o3']],
                             'pm2.5': [input_values['pm2.5']],
-                            'pm10': [input_values['pm10']]
+                            'pm10': [input_values['pm10']],
+                            'aqi': [0]  # Valor temporário para a transformação
                         })
 
                         # Normalizar dados usando o Quantile Transformer pré-treinado
@@ -360,6 +361,8 @@ if st.session_state["authentication_status"]:
                             qt.transform(input_data),
                             columns=input_data.columns
                         )
+                        # Remover a coluna 'aqi' antes de fazer a previsão
+                        input_normalized = input_normalized.drop('aqi', axis=1)
 
                         # Fazer previsão
                         prediction = model.predict(input_normalized)
@@ -604,10 +607,16 @@ if st.session_state["authentication_status"]:
                         try:
                             # Normalizar dados
                             status_text.text("Normalizando dados...")
+                            # Adicionar coluna 'aqi' temporária
+                            input_df_with_aqi = input_df[required_columns].copy()
+                            input_df_with_aqi['aqi'] = 0  # Valor temporário para a transformação
+                            
                             input_normalized = pd.DataFrame(
-                                qt.transform(input_df[required_columns]),
-                                columns=required_columns
+                                qt.transform(input_df_with_aqi),
+                                columns=input_df_with_aqi.columns
                             )
+                            # Remover a coluna 'aqi' antes de fazer a previsão
+                            input_normalized = input_normalized.drop('aqi', axis=1)
                             progress_bar.progress(30)
                             
                             # Fazer previsões
