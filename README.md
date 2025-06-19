@@ -237,6 +237,34 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - Discussões no GitHub para dúvidas
 - Email para contato profissional
 
+## 🚀 Deploy no Streamlit Share
+
+Para fazer o deploy do aplicativo no Streamlit Share:
+
+1. Faça fork do repositório para sua conta do GitHub
+
+2. Acesse [share.streamlit.io](https://share.streamlit.io)
+
+3. Faça login com sua conta do GitHub
+
+4. Clique em "New app" e selecione o repositório
+
+5. Configure as seguintes variáveis de ambiente:
+   - `GITHUB_RAW_URL`: URL base do seu repositório (ex: "https://raw.githubusercontent.com/seu-usuario/air_quality_indicator/main")
+
+6. Clique em "Deploy!"
+
+O aplicativo irá automaticamente:
+- Baixar o modelo treinado do GitHub
+- Carregar os dados de referência
+- Configurar a autenticação
+
+### Observações Importantes
+- Certifique-se de que todos os arquivos necessários (modelo, dados, config) estão no repositório
+- O arquivo `config.yaml` deve estar atualizado com as credenciais corretas
+- O modelo `rf_model.joblib` deve estar presente no repositório
+- O arquivo `airquality.csv` deve estar disponível para normalização dos dados
+
 ---
 
 <div align="center">

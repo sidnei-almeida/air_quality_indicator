@@ -79,10 +79,35 @@ import streamlit_authenticator as stauth
 import re
 from streamlit_option_menu import option_menu
 import io
+import requests
+
+# Função para baixar arquivos do GitHub
+def download_file_from_github(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.content
+    else:
+        raise Exception(f"Erro ao baixar arquivo: {response.status_code}")
+
+# URLs dos arquivos no GitHub (você precisa substituir com as URLs corretas do seu repositório)
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/seu-usuario/air_quality_indicator/main"
+MODEL_URL = f"{GITHUB_RAW_URL}/rf_model.joblib"
+DATA_URL = f"{GITHUB_RAW_URL}/airquality.csv"
+CONFIG_URL = f"{GITHUB_RAW_URL}/config.yaml"
 
 # Carrega as configurações de autenticação
-with open('config.yaml') as file:
-    config = yaml.load(file, Loader=SafeLoader)
+@st.cache_data
+def load_config():
+    try:
+        # Primeiro tenta ler localmente
+        with open('config.yaml') as file:
+            return yaml.load(file, Loader=SafeLoader)
+    except FileNotFoundError:
+        # Se não encontrar localmente, baixa do GitHub
+        content = download_file_from_github(CONFIG_URL)
+        return yaml.load(content, Loader=SafeLoader)
+
+config = load_config()
 
 # Cria o objeto autenticador
 authenticator = stauth.Authenticate(
@@ -195,17 +220,31 @@ if st.session_state["authentication_status"]:
         def add_banner():
             st.markdown('<h1 class="main-header">🌬️ Indicador de Qualidade do Ar</h1>', unsafe_allow_html=True)
 
-    # Load the trained model
+    # Carrega o modelo treinado
     @st.cache_resource
     def load_model():
-        return joblib.load('rf_model.joblib')
+        try:
+            # Primeiro tenta carregar localmente
+            return joblib.load('rf_model.joblib')
+        except FileNotFoundError:
+            # Se não encontrar localmente, baixa do GitHub
+            content = download_file_from_github(MODEL_URL)
+            with open('rf_model.joblib', 'wb') as f:
+                f.write(content)
+            return joblib.load('rf_model.joblib')
 
     model = load_model()
 
-    # Load a sample of the original data for normalization reference
+    # Carrega os dados de referência
     @st.cache_data
     def load_data():
-        return pd.read_csv('airquality.csv')
+        try:
+            # Primeiro tenta ler localmente
+            return pd.read_csv('airquality.csv')
+        except FileNotFoundError:
+            # Se não encontrar localmente, baixa do GitHub
+            content = download_file_from_github(DATA_URL)
+            return pd.read_csv(StringIO(content.decode('utf-8')))
 
     data = load_data()
     # Convert column names to lowercase

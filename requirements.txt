@@ -8,4 +8,5 @@ pyyaml==6.0.1
 streamlit-authenticator==0.3.1
 streamlit-option-menu==0.3.12
 seaborn==0.13.2
-matplotlib==3.8.2 
+matplotlib==3.8.2
+requests==2.31.0
