@@ -1,0 +1,14 @@
+cookie:
+  expiry_days: 30
+  key: air_quality_indicator_cookie
+  name: air_quality_login
+credentials:
+  usernames:
+    admin:
+      email: admin@example.com
+      name: Administrador
+      password: $2b$12$2SZPBw5qRFkKeAP0dgN5z.3Qfjv7Fp2BFXAHp2SsIZ2CaVdLLJHzu
+    sidnei:
+      email: sidnei.almeida1806@gmail.com
+      name: Sidnei Almeida
+      password: $2b$12$T3PkOYRbRdgIcrZ7hIOUb.c6I7HIDTj9VASFXBxhlmxHoQoe3kiry
