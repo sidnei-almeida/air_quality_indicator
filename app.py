@@ -251,6 +251,21 @@ if st.session_state["authentication_status"]:
     # Select numeric columns for normalization reference
     data_num = data.select_dtypes(include=['float64', 'int64'])
 
+    # Carrega o Quantile Transformer
+    @st.cache_resource
+    def load_quantile_transformer():
+        try:
+            # Primeiro tenta carregar localmente
+            return joblib.load('qt.joblib')
+        except FileNotFoundError:
+            # Se não encontrar localmente, baixa do GitHub
+            content = download_file_from_github("https://github.com/sidnei-almeida/air_quality_indicator/raw/refs/heads/main/qt.joblib")
+            with open('qt.joblib', 'wb') as f:
+                f.write(content)
+            return joblib.load('qt.joblib')
+
+    qt = load_quantile_transformer()
+
     def show_individual_prediction():
         st.write("Esta página permite prever o Índice de Qualidade do Ar (AQI) com base em medições individuais de poluentes.")
         
@@ -340,9 +355,7 @@ if st.session_state["authentication_status"]:
                             'pm10': [input_values['pm10']]
                         })
 
-                        # Normalizar dados
-                        qt = QuantileTransformer(output_distribution='normal')
-                        qt.fit(data_num[['co', 'no2', 'so2', 'o3', 'pm2.5', 'pm10']])
+                        # Normalizar dados usando o Quantile Transformer pré-treinado
                         input_normalized = pd.DataFrame(
                             qt.transform(input_data),
                             columns=input_data.columns
@@ -591,8 +604,6 @@ if st.session_state["authentication_status"]:
                         try:
                             # Normalizar dados
                             status_text.text("Normalizando dados...")
-                            qt = QuantileTransformer(output_distribution='normal')
-                            qt.fit(data_num[required_columns])
                             input_normalized = pd.DataFrame(
                                 qt.transform(input_df[required_columns]),
                                 columns=required_columns
