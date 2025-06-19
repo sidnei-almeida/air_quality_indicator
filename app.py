@@ -80,6 +80,7 @@ import re
 from streamlit_option_menu import option_menu
 import io
 import requests
+import gdown
 
 # Função para baixar arquivos do GitHub
 def download_file_from_github(url):
@@ -226,11 +227,18 @@ if st.session_state["authentication_status"]:
             # Primeiro tenta carregar localmente
             return joblib.load('rf_model.joblib')
         except FileNotFoundError:
-            # Se não encontrar localmente, baixa do GitHub
-            content = download_file_from_github(MODEL_URL)
-            with open('rf_model.joblib', 'wb') as f:
-                f.write(content)
-            return joblib.load('rf_model.joblib')
+            # Se não encontrar localmente, baixa do Google Drive
+            # ID do arquivo no Google Drive
+            file_id = "1dSQkrwW-2RhsiCQj_brBxhHWu0xQMUBq"
+            output = 'rf_model.joblib'
+            
+            try:
+                url = f'https://drive.google.com/uc?id={file_id}'
+                gdown.download(url, output, quiet=False)
+                return joblib.load('rf_model.joblib')
+            except Exception as e:
+                st.error(f"Erro ao baixar o modelo do Google Drive: {str(e)}")
+                return None
 
     model = load_model()
 
