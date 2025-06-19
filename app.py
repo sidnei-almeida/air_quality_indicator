@@ -89,11 +89,10 @@ def download_file_from_github(url):
     else:
         raise Exception(f"Erro ao baixar arquivo: {response.status_code}")
 
-# URLs dos arquivos no GitHub (você precisa substituir com as URLs corretas do seu repositório)
-GITHUB_RAW_URL = "https://raw.githubusercontent.com/seu-usuario/air_quality_indicator/main"
-MODEL_URL = f"{GITHUB_RAW_URL}/rf_model.joblib"
-DATA_URL = f"{GITHUB_RAW_URL}/airquality.csv"
-CONFIG_URL = f"{GITHUB_RAW_URL}/config.yaml"
+# URLs dos arquivos no GitHub
+MODEL_URL = "https://github.com/sidnei-almeida/air_quality_indicator/raw/refs/heads/main/rf_model.joblib"
+DATA_URL = "https://raw.githubusercontent.com/sidnei-almeida/air_quality_indicator/refs/heads/main/airquality.csv"
+CONFIG_URL = "https://raw.githubusercontent.com/sidnei-almeida/air_quality_indicator/refs/heads/main/config.yaml"
 
 # Carrega as configurações de autenticação
 @st.cache_data
