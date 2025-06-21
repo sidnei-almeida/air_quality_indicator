@@ -1,0 +1,204 @@
+# Log de Melhorias - Aplicação Streamlit
+Data: 2024
+
+## 1. Remoção de CSS Personalizado
+- Removido arquivo .streamlit/style.css
+- Migração para uso do tema nativo do Streamlit através do config.toml
+- Melhoria na consistência visual e manutenibilidade
+
+### 1.1 Problemas Encontrados
+- Conflito entre CSS personalizado e tema nativo do Streamlit
+- Inconsistência visual em diferentes navegadores
+- Solução: Remoção completa do CSS personalizado e uso do config.toml
+
+## 2. Correção de Interface
+- Removido título duplicado na aplicação
+- Melhor organização visual da interface
+
+### 2.1 Problemas de Layout
+- Títulos duplicados causando confusão visual
+- Problemas de hierarquia visual
+- Solução: Utilização correta das funções st.title() e st.header()
+
+## 3. Implementação de Autenticação
+### 3.1 Dependências Adicionadas
+```bash
+pip install streamlit-authenticator
+```
+
+### 3.2 Estrutura de Arquivos
+- Criado arquivo config.yaml para credenciais
+- Modificado app.py para incluir autenticação
+
+### 3.3 Configuração de Autenticação
+- Credenciais iniciais configuradas:
+  - Usuário: admin
+  - Senha: senha123
+- Implementado sistema de login/logout
+- Conteúdo da aplicação protegido por autenticação
+
+### 3.4 Problemas Comuns de Autenticação
+1. Erro de Importação:
+   ```python
+   ImportError: No module named streamlit_authenticator
+   ```
+   Solução: 
+   - Verificar instalação com `pip list | grep streamlit-authenticator`
+   - Reinstalar usando `pip install streamlit-authenticator --upgrade`
+   - Em alguns casos, necessário usar `pip3` em vez de `pip`
+
+2. Erro de Hash de Senha:
+   ```python
+   KeyError: 'password'
+   ```
+   Solução:
+   - Usar o gerador de hash correto:
+   ```python
+   import streamlit_authenticator as stauth
+   hashed_password = stauth.Hasher(['senha123']).generate()[0]
+   ```
+
+3. Erro de Arquivo YAML:
+   ```python
+   yaml.YAMLError: mapping values are not allowed here
+   ```
+   Solução:
+   - Verificar indentação do arquivo config.yaml
+   - Usar espaços em vez de tabs
+   - Manter estrutura exata do exemplo
+
+## 4. Bibliotecas Streamlit Recomendadas
+Bibliotecas sugeridas para futuras melhorias:
+1. streamlit-option-menu: Para menus de navegação personalizados
+2. streamlit-lottie: Para animações e elementos visuais
+3. streamlit-folium: Para mapas interativos
+4. streamlit-metrics: Para métricas e KPIs
+5. plost: Para visualizações de dados avançadas
+6. streamlit-aggrid: Para tabelas interativas avançadas
+7. streamlit-bokeh-events: Para eventos interativos
+8. streamlit-plotly-events: Para gráficos interativos
+9. streamlit-drawable-canvas: Para elementos de desenho
+
+### 4.1 Problemas Comuns com Bibliotecas
+- Conflitos de versão com Streamlit core
+- Solução: Manter arquivo requirements.txt atualizado com versões específicas:
+```txt
+streamlit==1.31.0
+streamlit-authenticator==0.2.3
+pyyaml==6.0.1
+```
+
+## 5. Estrutura do config.yaml
+```yaml
+credentials:
+  usernames:
+    admin:
+      email: admin@example.com
+      name: Admin User
+      password: # hash da senha 'senha123'
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+```
+
+### 5.1 Problemas Comuns com config.yaml
+1. Erro de Segurança:
+   - Nunca commitar o arquivo config.yaml com senhas reais
+   - Usar .gitignore para excluir arquivos sensíveis
+   - Manter um config.yaml.example no repositório
+
+2. Erro de Formato:
+   - Manter estrutura hierárquica correta
+   - Não usar caracteres especiais em nomes de chaves
+   - Sempre usar aspas duplas para strings com caracteres especiais
+
+## 6. Principais Modificações no app.py
+```python
+import streamlit as st
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
+
+# Carregar configurações
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+# Configurar autenticador
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
+
+# Login
+name, authentication_status, username = authenticator.login('Login', 'main')
+
+if authentication_status:
+    # Conteúdo principal do app aqui
+    authenticator.logout('Logout', 'main')
+elif authentication_status == False:
+    st.error('Username/password is incorrect')
+elif authentication_status == None:
+    st.warning('Please enter your username and password')
+```
+
+### 6.1 Problemas Comuns no Código
+1. Erro de Sessão:
+   ```python
+   RuntimeError: Session State has no attribute 'key'
+   ```
+   Solução:
+   - Inicializar variáveis de sessão no início do app
+   - Usar try/except para tratamento de erros de sessão
+
+2. Erro de Cache:
+   - Problemas com cache do navegador afetando autenticação
+   - Solução: Adicionar clear_cache ao logout:
+   ```python
+   if st.button('Logout'):
+       st.cache_data.clear()
+       authenticator.logout('Logout', 'main')
+   ```
+
+## 7. Observações Importantes
+- Sempre manter as credenciais em arquivo separado (config.yaml)
+- Nunca compartilhar chaves de segurança em repositórios públicos
+- Usar variáveis de ambiente para informações sensíveis
+- Manter as dependências atualizadas
+- Testar a aplicação em diferentes navegadores
+
+### 7.1 Boas Práticas de Segurança
+1. Rotação de Chaves:
+   - Mudar periodicamente as chaves de cookie
+   - Implementar expiração de sessão
+   - Usar secrets.token_hex() para gerar chaves
+
+2. Validação de Entrada:
+   - Implementar validação de formato de email
+   - Limitar tentativas de login
+   - Implementar captcha para múltiplas tentativas falhas
+
+## 8. Próximos Passos Sugeridos
+1. Implementar sistema de recuperação de senha
+2. Adicionar níveis de permissão de usuário
+3. Implementar logging de ações do usuário
+4. Melhorar feedback visual das interações
+5. Adicionar mais elementos interativos usando as bibliotecas sugeridas
+
+### 8.1 Recomendações de Implementação
+1. Sistema de Logs:
+   ```python
+   import logging
+   logging.basicConfig(
+       filename='app.log',
+       level=logging.INFO,
+       format='%(asctime)s - %(levelname)s - %(message)s'
+   )
+   ```
+
+2. Monitoramento de Erros:
+   - Implementar try/except em operações críticas
+   - Logging de erros com stacktrace
+   - Feedback amigável ao usuário mantendo logs detalhados 
